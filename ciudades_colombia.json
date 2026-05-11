@@ -1,0 +1,179 @@
+{
+  "ciudades": [
+    {
+      "nombre": "Bogotá",
+      "departamento": "Cundinamarca",
+      "latitud": 4.7110,
+      "longitud": -74.0721,
+      "altitud": 2640
+    },
+    {
+      "nombre": "Medellín",
+      "departamento": "Antioquia",
+      "latitud": 6.2476,
+      "longitud": -75.5658,
+      "altitud": 1500
+    },
+    {
+      "nombre": "Cali",
+      "departamento": "Valle del Cauca",
+      "latitud": 3.4516,
+      "longitud": -76.5320,
+      "altitud": 1018
+    },
+    {
+      "nombre": "Barranquilla",
+      "departamento": "Atlántico",
+      "latitud": 10.9685,
+      "longitud": -74.7813,
+      "altitud": 15
+    },
+    {
+      "nombre": "Cartagena",
+      "departamento": "Bolívar",
+      "latitud": 10.3910,
+      "longitud": -75.4794,
+      "altitud": 2
+    },
+    {
+      "nombre": "Bucaramanga",
+      "departamento": "Santander",
+      "latitud": 7.1254,
+      "longitud": -73.1198,
+      "altitud": 1180
+    },
+    {
+      "nombre": "Pereira",
+      "departamento": "Risaralda",
+      "latitud": 4.8133,
+      "longitud": -75.6961,
+      "altitud": 1410
+    },
+    {
+      "nombre": "Manizales",
+      "departamento": "Caldas",
+      "latitud": 5.0689,
+      "longitud": -75.5174,
+      "altitud": 2150
+    },
+    {
+      "nombre": "Ibagué",
+      "departamento": "Tolima",
+      "latitud": 4.4389,
+      "longitud": -75.2324,
+      "altitud": 1285
+    },
+    {
+      "nombre": "Neiva",
+      "departamento": "Huila",
+      "latitud": 2.9263,
+      "longitud": -75.2819,
+      "altitud": 442
+    },
+    {
+      "nombre": "Villavicencio",
+      "departamento": "Meta",
+      "latitud": 4.1429,
+      "longitud": -73.6266,
+      "altitud": 467
+    },
+    {
+      "nombre": "Pasto",
+      "departamento": "Nariño",
+      "latitud": 1.2055,
+      "longitud": -77.2808,
+      "altitud": 2527
+    },
+    {
+      "nombre": "Cúcuta",
+      "departamento": "Norte de Santander",
+      "latitud": 7.9271,
+      "longitud": -72.5075,
+      "altitud": 320
+    },
+    {
+      "nombre": "Popayán",
+      "departamento": "Cauca",
+      "latitud": 2.4542,
+      "longitud": -76.6092,
+      "altitud": 1730
+    },
+    {
+      "nombre": "Montería",
+      "departamento": "Córdoba",
+      "latitud": 8.7479,
+      "longitud": -75.8815,
+      "altitud": 18
+    },
+    {
+      "nombre": "Sincelejo",
+      "departamento": "Sucre",
+      "latitud": 9.3047,
+      "longitud": -75.3978,
+      "altitud": 213
+    },
+    {
+      "nombre": "Armenia",
+      "departamento": "Quindío",
+      "latitud": 4.5339,
+      "longitud": -75.6811,
+      "altitud": 1550
+    },
+    {
+      "nombre": "Riohacha",
+      "departamento": "La Guajira",
+      "latitud": 11.5441,
+      "longitud": -72.9069,
+      "altitud": 5
+    },
+    {
+      "nombre": "Tunja",
+      "departamento": "Boyacá",
+      "latitud": 5.5547,
+      "longitud": -73.3576,
+      "altitud": 2820
+    },
+    {
+      "nombre": "Florencia",
+      "departamento": "Caquetá",
+      "latitud": 1.6154,
+      "longitud": -75.6066,
+      "altitud": 242
+    },
+    {
+      "nombre": "Quibdó",
+      "departamento": "Chocó",
+      "latitud": 5.6920,
+      "longitud": -76.6615,
+      "altitud": 43
+    },
+    {
+      "nombre": "San Andrés",
+      "departamento": "San Andrés y Providencia",
+      "latitud": 12.5361,
+      "longitud": -81.7190,
+      "altitud": 5
+    },
+    {
+      "nombre": "Yopal",
+      "departamento": "Casanare",
+      "latitud": 5.3378,
+      "longitud": -72.4016,
+      "altitud": 310
+    },
+    {
+      "nombre": "Mocoa",
+      "departamento": "Putumayo",
+      "latitud": 1.1493,
+      "longitud": -76.6476,
+      "altitud": 590
+    },
+    {
+      "nombre": "Inírida",
+      "departamento": "Guainía",
+      "latitud": 3.8658,
+      "longitud": -67.9239,
+      "altitud": 150
+    }
+  ]
+}
