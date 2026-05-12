@@ -1,17 +1,6 @@
-# Dependencias para la herramienta de diseño de enlaces de microondas
+# Dependencias para la herramienta de diseño de enlaces satelitales
 # Python 3.x
 
-# No se requieren dependencias externas adicionales
-# La herramienta usa solo bibliotecas estándar de Python:
-# - tkinter (incluido con Python)
-# - json (incluido con Python)
-# - math (incluido con Python)
-# - datetime (incluido con Python)
-# - webbrowser (incluido con Python)
-
-# Opcional: Si desea generar informes en PDF, instale:
-# pip install reportlab
-
-# Opcional: Si desea visualizaciones adicionales, instale:
-# pip install matplotlib
-# pip install numpy
+tkintermapview>=1.20
+matplotlib>=3.5.0
+reportlab>=3.6.0

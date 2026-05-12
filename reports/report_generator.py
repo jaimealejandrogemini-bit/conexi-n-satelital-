@@ -1,15 +1,19 @@
 """
-Módulo de generación de informes técnicos para enlaces de microondas.
+Módulo de generación de informes técnicos para enlaces satelitales en PDF.
 """
 
 from datetime import datetime
-import math
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 
 class ReportGenerator:
-    """Generador de informes técnicos para enlaces de microondas."""
+    """Generador de informes técnicos en PDF para enlaces satelitales."""
     
-    def __init__(self, resultados, nombre_archivo="informe_enlace"):
+    def __init__(self, resultados, params, nombre_archivo="informe_enlace_satelital"):
         """
         Inicializa el generador de informes.
         
@@ -17,179 +21,144 @@ class ReportGenerator:
         -----------
         resultados : dict
             Diccionario con los resultados del cálculo del enlace
+        params : dict
+            Diccionario con los parámetros de entrada
         nombre_archivo : str
             Nombre base para el archivo de informe
         """
         self.resultados = resultados
+        self.params = params
         self.nombre_archivo = nombre_archivo
+        self.styles = getSampleStyleSheet()
+        self._setup_custom_styles()
     
-    def generar_texto(self):
+    def _setup_custom_styles(self):
+        """Configura estilos personalizados para el PDF."""
+        self.styles.add(ParagraphStyle(
+            name='TituloCentrado',
+            parent=self.styles['Title'],
+            alignment=TA_CENTER,
+            fontSize=18,
+            spaceAfter=20
+        ))
+        self.styles.add(ParagraphStyle(
+            name='Subtitulo',
+            parent=self.styles['Heading2'],
+            spaceBefore=15,
+            spaceAfter=10
+        ))
+        self.styles.add(ParagraphStyle(
+            name='NormalJustificado',
+            parent=self.styles['Normal'],
+            spaceBefore=5,
+            spaceAfter=5
+        ))
+    
+    def generar_pdf(self):
         """
-        Genera el contenido del informe en formato texto.
+        Genera el contenido del informe en formato PDF.
         
         Retorna:
         --------
-        str : Contenido del informe
+        str : Ruta del archivo PDF generado
         """
+        nombre_completo = f"{self.nombre_archivo}.pdf"
+        doc = SimpleDocTemplate(nombre_completo, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
+        story = []
+        
+        # Título principal
+        story.append(Paragraph("INFORME TÉCNICO DE DISEÑO DE ENLACE SATELITAL", self.styles['TituloCentrado']))
+        
+        # Fecha de generación
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        story.append(Paragraph(f"Fecha de generación: {fecha}", self.styles['NormalJustificado']))
+        story.append(Spacer(1, 20))
+        
+        # 1. Datos de Entrada
+        story.append(Paragraph("1. DATOS DE ENTRADA", self.styles['Subtitulo']))
+        story.append(self._crear_tabla_entrada())
+        story.append(Spacer(1, 15))
+        
+        # 2. Resultados del Enlace
+        story.append(Paragraph("2. RESULTADOS DEL ENLACE", self.styles['Subtitulo']))
+        story.append(self._crear_tabla_resultados())
+        
+        doc.build(story)
+        return nombre_completo
+    
+    def _crear_tabla_entrada(self):
+        """Crea la tabla con los datos de entrada."""
+        datos = [
+            ["Parámetro", "Valor"],
+            ["Latitud Tx (°)", f"{self.params.get('lat_tx', 0):.6f}"],
+            ["Longitud Tx (°)", f"{self.params.get('lon_tx', 0):.6f}"],
+            ["Latitud Rx (°)", f"{self.params.get('lat_rx', 0):.6f}"],
+            ["Longitud Rx (°)", f"{self.params.get('lon_rx', 0):.6f}"],
+            ["Longitud Satélite (°)", f"{self.params.get('lon_sat', 0):.2f}"],
+            ["Frecuencia Up (GHz)", f"{self.params.get('f_up_ghz', 0):.2f}"],
+            ["Frecuencia Down (GHz)", f"{self.params.get('f_down_ghz', 0):.2f}"],
+            ["PIRE Estación (dBW)", f"{self.params.get('pire_estacion', 0):.2f}"],
+            ["PIRE Satélite (dBW)", f"{self.params.get('pire_satelite', 0):.2f}"],
+            ["G/T Satélite (dB/K)", f"{self.params.get('gt_satelite', 0):.2f}"],
+            ["G/T Estación (dB/K)", f"{self.params.get('gt_estacion', 0):.2f}"]
+        ]
+        
+        tabla = Table(datos, colWidths=[200, 150])
+        estilo = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#007ACC')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0f8ff')),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ])
+        tabla.setStyle(estilo)
+        return tabla
+    
+    def _crear_tabla_resultados(self):
+        """Crea la tabla con los resultados del enlace."""
         r = self.resultados
+        datos = [
+            ["Resultado", "Valor"],
+            ["C/No Up (dBHz)", f"{r['resultados']['c_no_up']:.2f}"],
+            ["C/No Down (dBHz)", f"{r['resultados']['c_no_down']:.2f}"],
+            ["C/No Total (dBHz)", f"{r['resultados']['c_no_total']:.2f}"],
+            ["C/N Total (dB)", f"{r['resultados']['c_n_total']:.2f}"],
+            ["FSL Up (dB)", f"{r['perdidas']['fsl_up']:.2f}"],
+            ["FSL Down (dB)", f"{r['perdidas']['fsl_down']:.2f}"],
+            ["Elevación Tx (°)", f"{r['geometria_tx']['elevacion']:.2f}"],
+            ["Azimut Tx (°)", f"{r['geometria_tx']['azimut']:.2f}"],
+            ["Rango Tx (km)", f"{r['geometria_tx']['rango']:.2f}"],
+            ["Elevación Rx (°)", f"{r['geometria_rx']['elevacion']:.2f}"],
+            ["Azimut Rx (°)", f"{r['geometria_rx']['azimut']:.2f}"],
+            ["Rango Rx (km)", f"{r['geometria_rx']['rango']:.2f}"]
+        ]
         
-        informe = []
-        
-        # Encabezado
-        informe.append("=" * 80)
-        informe.append("INFORME TÉCNICO DE DISEÑO DE ENLACE DE MICROONDAS")
-        informe.append("=" * 80)
-        informe.append("")
-        informe.append(f"Fecha de generación: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        informe.append("")
-        
-        # 1. Resumen Ejecutivo
-        informe.append("1. RESUMEN EJECUTIVO")
-        informe.append("-" * 80)
-        
-        tipo = r.get('tipo', 'Con Repetidor')
-        informe.append(f"Tipo de enlace: {tipo}")
-        informe.append(f"Sitio A: {r['sitio_a']['nombre']}")
-        informe.append(f"Sitio B: {r['sitio_b']['nombre']}")
-        informe.append(f"Distancia total: {r['distancia_total']:.2f} km")
-        informe.append(f"Frecuencia de operación: {r['frecuencia']:.1f} GHz")
-        
-        if 'balance' in r:
-            estado = r['balance'].get('estado', 'N/A')
-            margen = r['balance'].get('margin_db', 0)
-            informe.append(f"Estado del enlace: {estado}")
-            informe.append(f"Margen del enlace: {margen:.2f} dB")
-        
-        if r.get('necesita_repetidor'):
-            if 'repetidor' in r:
-                informe.append(f"Repetidor requerido: Sí")
-                informe.append(f"Ubicación del repetidor: Lat {r['repetidor']['latitud']:.4f}°, "
-                             f"Lon {r['repetidor']['longitud']:.4f}°")
-        
-        informe.append("")
-        
-        # 2. Especificaciones del Sistema
-        informe.append("2. ESPECIFICACIONES DEL SISTEMA")
-        informe.append("-" * 80)
-        
-        informe.append("Parámetros de transmisión:")
-        if 'balance' in r:
-            informe.append(f"  - Potencia de transmisión: {r['balance']['tx_power_dbm']} dBm")
-            informe.append(f"  - Ganancia de antenas TX/RX: {r['balance']['tx_gain_dbi']} dBi")
-            informe.append(f"  - PIRE: {r['balance']['pire_dbm']} dBm")
-        
-        informe.append("")
-        informe.append("Parámetros de recepción:")
-        if 'balance' in r:
-            informe.append(f"  - Sensibilidad del receptor: {r['balance']['rx_sensitivity_dbm']} dBm")
-            informe.append(f"  - Potencia recibida: {r['balance']['rx_power_dbm']} dBm")
-        
-        informe.append("")
-        
-        # 3. Parámetros del Enlace
-        informe.append("3. PARÁMETROS DEL ENLACE")
-        informe.append("-" * 80)
-        
-        informe.append("Coordenadas geográficas:")
-        informe.append(f"Sitio A ({r['sitio_a']['nombre']}):")
-        informe.append(f"  Latitud: {r['sitio_a']['lat']:.6f}°")
-        informe.append(f"  Longitud: {r['sitio_a']['lon']:.6f}°")
-        informe.append(f"  Altitud: {r['sitio_a']['alt']} m.s.n.m")
-        
-        informe.append("")
-        informe.append(f"Sitio B ({r['sitio_b']['nombre']}):")
-        informe.append(f"  Latitud: {r['sitio_b']['lat']:.6f}°")
-        informe.append(f"  Longitud: {r['sitio_b']['lon']:.6f}°")
-        informe.append(f"  Altitud: {r['sitio_b']['alt']} m.s.n.m")
-        
-        informe.append("")
-        
-        # 4. Cálculos de Ingeniería
-        informe.append("4. CÁLCULOS DE INGENIERÍA")
-        informe.append("-" * 80)
-        
-        # Alturas de torres
-        informe.append("Alturas de torres:")
-        if 'altura_torre_a' in r:
-            informe.append(f"  Torre {r['sitio_a']['nombre']}: {r['altura_torre_a']:.2f} m")
-            informe.append(f"  Torre {r['sitio_b']['nombre']}: {r['altura_torre_b']:.2f} m")
-        
-        if r.get('necesita_repetidor') and 'segmento_a' in r:
-            seg_a = r['segmento_a']
-            seg_b = r['segmento_b']
-            informe.append("")
-            informe.append("Con repetidor:")
-            informe.append(f"  Segmento 1 ({r['sitio_a']['nombre']} -> Repetidor): {seg_a['distancia_km']:.2f} km")
-            informe.append(f"    Torre {r['sitio_a']['nombre']}: {seg_a['altura_torre_a']:.2f} m")
-            informe.append(f"    Torre Repetidor: {seg_a['altura_torre_b']:.2f} m")
-            informe.append(f"  Segmento 2 (Repetidor -> {r['sitio_b']['nombre']}): {seg_b['distancia_km']:.2f} km")
-            informe.append(f"    Torre Repetidor: {seg_b['altura_torre_a']:.2f} m")
-            informe.append(f"    Torre {r['sitio_b']['nombre']}: {seg_b['altura_torre_b']:.2f} m")
-        
-        # Zona de Fresnel
-        from core.geography import calculate_first_fresnel_radius
-        fresnel = calculate_first_fresnel_radius(r['distancia_total'], r['frecuencia'])
-        informe.append("")
-        informe.append("Zona de Fresnel:")
-        informe.append(f"  Radio primera zona: {fresnel:.2f} m")
-        informe.append(f"  Despejamiento 60%: {fresnel*0.6:.2f} m")
-        
-        informe.append("")
-        
-        # 5. Pérdidas de Propagación
-        informe.append("5. PÉRDIDAS DE PROPAGACIÓN")
-        informe.append("-" * 80)
-        
-        if 'perdidas' in r:
-            p = r['perdidas']
-            informe.append("Modelo ITU-R P.530:")
-            informe.append(f"  Pérdida en espacio libre: {p['free_space_loss']:.2f} dB")
-            informe.append(f"  Atenuación por lluvia: {p['rain_loss']:.2f} dB")
-            informe.append(f"  Atenuación por gases: {p['gas_loss']:.2f} dB")
-            informe.append(f"  PÉRDIDA TOTAL: {p['total_loss']:.2f} dB")
-        
-        if r.get('necesita_repetidor'):
-            if 'perdidas_a' in r and 'perdidas_b' in r:
-                pa = r['perdidas_a']
-                pb = r['perdidas_b']
-                informe.append("")
-                informe.append("Con repetidor:")
-                informe.append(f"  Segmento A->Repetidor: {pa['total_loss']:.2f} dB")
-                informe.append(f"  Segmento Repetidor->B: {pb['total_loss']:.2f} dB")
-                total_rep = pa['total_loss'] + pb['total_loss']
-                informe.append(f"  Pérdida total (2 saltos): {total_rep:.2f} dB")
-        
-        informe.append("")
-        
-        # 6. Conclusiones y Recomendaciones
-        informe.append("6. CONCLUSIONES Y RECOMENDACIONES")
-        informe.append("-" * 80)
-        
-        if 'balance' in r:
-            margen = r['balance']['margin_db']
-            if margen >= 10:
-                informe.append(f"El enlace tiene un margen adecuado de {margen:.2f} dB.")
-                informe.append("Se recomienda proceder con la implementación.")
-            elif margen >= 3:
-                informe.append(f"Advertencia: El margen del enlace es de {margen:.2f} dB.")
-                informe.append("Considere aumentar la potencia o增益 de las antenas.")
-            else:
-                informe.append(f"ERROR: El margen del enlace es insuficiente ({margen:.2f} dB).")
-                informe.append("Es necesario rediseñar el enlace.")
-        
-        informe.append("")
-        
-        # Pie de página
-        informe.append("=" * 80)
-        informe.append("INFORME GENERADO CON HERRAMIENTA DE DISEÑO DE MICROONDAS")
-        informe.append("Cumple con recomendaciones ITU-R F.1101 y P.530")
-        informe.append("=" * 80)
-        
-        return "\n".join(informe)
+        tabla = Table(datos, colWidths=[200, 150])
+        estilo = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2ecc71')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0fff4')),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ])
+        tabla.setStyle(estilo)
+        return tabla
     
     def guardar(self, nombre_archivo=None):
         """
-        Guarda el informe en un archivo de texto.
+        Guarda el informe en un archivo PDF.
         
         Parámetros:
         -----------
@@ -200,27 +169,21 @@ class ReportGenerator:
         --------
         str : Ruta del archivo guardado
         """
-        if nombre_archivo is None:
-            nombre_archivo = self.nombre_archivo
-        
-        nombre_completo = f"{nombre_archivo}.txt"
-        
-        contenido = self.generar_texto()
-        
-        with open(nombre_completo, 'w', encoding='utf-8') as f:
-            f.write(contenido)
-        
-        return nombre_completo
+        if nombre_archivo is not None:
+            self.nombre_archivo = nombre_archivo
+        return self.generar_pdf()
 
 
-def generar_informe(resultados, nombre_archivo="informe_enlace"):
+def generar_informe(resultados, params, nombre_archivo="informe_enlace_satelital"):
     """
-    Función de conveniencia para generar un informe.
+    Función de conveniencia para generar un informe PDF.
     
     Parámetros:
     -----------
     resultados : dict
         Resultados del cálculo del enlace
+    params : dict
+        Parámetros de entrada
     nombre_archivo : str
         Nombre base para el archivo
         
@@ -228,5 +191,5 @@ def generar_informe(resultados, nombre_archivo="informe_enlace"):
     --------
     str : Ruta del archivo guardado
     """
-    generador = ReportGenerator(resultados, nombre_archivo)
+    generador = ReportGenerator(resultados, params, nombre_archivo)
     return generador.guardar()
